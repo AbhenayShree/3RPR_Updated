@@ -1,4 +1,4 @@
-# Hybrid Reinforcement Learning and Model Predictive Control for a 3-RPR Planar Parallel Manipulator
+# Hybrid Reinforcement Learning and Model Predictive Control Framework for a 3-RPR Planar Parallel Manipulator
 
 This repository presents a control framework for a 3-RPR planar parallel manipulator using three strategies:  
 1. Model Predictive Control (MPC)  
