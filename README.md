@@ -1,72 +1,94 @@
 # Hybrid Reinforcement Learning and Model Predictive Control for a 3-RPR Planar Parallel Manipulator
 
-This repository presents an adaptive control framework for a 3-RPR planar parallel manipulator, integrating Deep Reinforcement Learning (DDPG) with Model Predictive Control (MPC). The system enables high-precision end-effector trajectory tracking in a closed-loop, nonlinear robotic mechanism with complex constraints.
+This repository presents a control framework for a 3-RPR planar parallel manipulator using three strategies:  
+1. Model Predictive Control (MPC)  
+2. Deep Reinforcement Learning (DDPG)  
+3. A hybrid approach combining MPC with DDPG for improved learning stability and control performance.
 
 
 
-## System Description
+## System Overview
 
-- **Manipulator Type**: 3-RPR planar parallel robot with three prismatic actuators and two passive revolute joints per leg.
-- **Degrees of Freedom**: 3 (X, Y, θ)
-- **Control Objective**: Track desired end-effector trajectories while satisfying physical constraints and minimizing control effort.
-
-
-
-## Control Strategies Implemented
-
-1. **Model Predictive Control (MPC)**
-   - Finite horizon trajectory optimization using nonlinear programming.
-   - Objective function penalizes pose error, actuator effort, and state deviation.
-   - Constraints include actuator bounds and dynamic feasibility.
-   - Solved using `scipy.optimize.minimize` in a receding horizon manner.
-
-2. **Deep Reinforcement Learning (DDPG)**
-   - Actor-Critic based deep reinforcement learning for continuous control.
-   - Implemented using TensorFlow with custom actor, critic, and replay buffer.
-   - Trained to minimize trajectory error using sparse reward signals.
-
-3. **Hybrid RL + MPC (Proposed)**
-   - Uses MPC-generated expert transitions to guide DDPG learning.
-   - Augments replay buffer with structured demonstrations to improve convergence.
-   - Combines the generalization ability of RL with the planning stability of MPC.
+- **Robot Type**: 3-RPR planar parallel manipulator  
+- **Actuation**: 3 prismatic joints (active), with revolute joints (passive) at the base and platform  
+- **Degrees of Freedom**: 3 — two translations (X, Y) and one rotation (Theta) in a 2D plane  
+- **State Variables**: Position, orientation, and their velocities  
+- **Control Inputs**: Actuator forces applied at the prismatic joints  
+- **Goal**: Track desired end-effector trajectories with minimal error and stable control actions  
 
 
 
-## Modeling and Simulation
+## Control Strategies
 
-- **Kinematics**: Full analytical derivation of forward and inverse position/velocity kinematics.
-- **Dynamics**: Euler-Lagrange formulation used for deriving manipulator dynamics.
-- **Simulation**: Includes end-effector trajectory tracking with noise and perturbations.
-- **Reward Design**: Penalizes position error, sudden actuator inputs, and control divergence.
+### 1. Model Predictive Control (MPC)
+
+- Uses nonlinear optimization to compute a sequence of control inputs over a prediction horizon.  
+- Minimizes a cost function based on tracking error and actuator effort.  
+- Solved using `scipy.optimize.minimize`.  
+- Only the first control input is applied at each step (receding horizon).  
+- Includes constraints for actuator limits and dynamic feasibility.
+
+### 2. Deep Deterministic Policy Gradient (DDPG)
+
+- A deep reinforcement learning method for continuous action spaces.  
+- Implemented using an actor-critic architecture in TensorFlow.  
+- Trains a policy to map observed states to control actions (forces).  
+- Uses a replay buffer to store past transitions and improve sample efficiency.  
+- Soft updates ensure stable learning of target networks.
+
+### 3. Hybrid RL + MPC (Proposed)
+
+- Combines the structure of MPC with the learning capability of DDPG.  
+- MPC-generated trajectories are added to the replay buffer.  
+- DDPG trains on both exploration and expert-guided samples.  
+- This improves convergence speed, sample efficiency, and overall stability.
 
 
 
-## Results Summary
+## Modeling
 
-| Strategy         | Convergence Speed | Tracking Accuracy | Stability |
-|------------------|-------------------|-------------------|-----------|
-| DDPG             | Low               | Moderate          | Unstable  |
-| MPC              | High              | High              | Stable    |
-| Hybrid RL + MPC  | Highest (~40% ↑)  | High              | Very Stable |
+### Kinematics
 
-- The hybrid strategy showed faster learning, smoother control outputs, and reduced actuator energy usage.
+- **Inverse Kinematics**: Derived analytically to compute actuator lengths based on desired end-effector pose.  
+- **Forward Kinematics**: Solved numerically due to closed-loop constraints.  
+- **Velocity Kinematics**: The Jacobian matrix is used to relate actuator velocities to the end-effector's linear and angular velocities.
+
+### Dynamics
+
+- Derived using the Euler-Lagrange method.  
+- Models the kinetic energy of each limb and the platform.  
+- The dynamic model includes mass/inertia effects, Coriolis forces, and actuator torques.  
+- Gravity is neglected due to planar horizontal configuration.  
+- Dynamics are implemented symbolically and evaluated numerically for real-time use in MPC and simulation during RL training.
 
 
-## Technologies
 
-- Python 3.10
-- TensorFlow (DDPG agent)
-- SciPy (nonlinear optimization)
+## Evaluation Summary
+
+| Controller         | Convergence Speed | Tracking Accuracy | Stability        |
+|--------------------|-------------------|--------------------|------------------|
+| DDPG               | Slow              | Moderate           | Unstable         |
+| MPC                | Fast              | High               | Stable           |
+| Hybrid RL + MPC    | Fastest           | High               | Very Stable      |
+
+- The hybrid controller showed significant improvements in training time and control smoothness.  
+- MPC alone was fast and reliable but lacked adaptability.  
+- Pure DDPG was unstable and slower to converge.
+
+## Technologies Used
+
+- Python 3.10  
+- TensorFlow (for DDPG)  
+- SciPy (for MPC optimization)  
 - NumPy, Matplotlib (simulation and visualization)
-
 
 
 ## Future Work
 
-- Extension to 3D platforms (e.g., Stewart platform).
-- Hardware-in-the-loop testing with real actuators.
-- Integration with advanced RL algorithms (e.g., SAC, PPO).
-- Domain randomization for sim-to-real transfer.
-
+- Deploy on real hardware using torque control  
+- Test on 6-DOF spatial parallel manipulators  
+- Use advanced RL methods like Soft Actor Critic (SAC) or Proximal Policy Optimization (PPO)  
+- Apply domain randomization for sim-to-real transfer  
+- Introduce online learning for system adaptation
 
 
