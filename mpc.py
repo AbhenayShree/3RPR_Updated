@@ -7,8 +7,7 @@ from matplotlib import pyplot as plt
 from symbolic_functions import Lagrangian_as_function_of_jointcoordinates
 
 
-
-robot_state = (0.5, 0.5, math.radians(45), 1.0, 0.5, 0.1)
+robot_state = (0.01, 0.02, math.radians(15), 0, 0, 0)
 target_state = (0,0,0,0,0,0)
 robot_params = robot_parameters()
 
