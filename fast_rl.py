@@ -300,6 +300,6 @@ def compute_control_forces(actor_model, initial_state, dt=0.01, max_steps=500):
 
     return history
 
-initial_state = (0.5, 0.5, math.radians(45), 1.0, 0.5, 0.1)
+initial_state = (0.01, 0.02, math.radians(15), 0.0, 0.0, 0.0)
 history = compute_control_forces(actor_model, initial_state, dt=0.01, max_steps = 50)
 plot_control_results(history)
